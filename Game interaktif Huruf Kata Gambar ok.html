@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Edukatif - Mencocokkan</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #4a5568;
+            margin: 0;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header p {
+            color: #718096;
+            margin: 10px 0 0 0;
+            font-size: 1.2rem;
+        }
+
+        .game-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .game-btn {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .game-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .game-btn.active {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+
+        .game-area {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .instruction {
+            background: linear-gradient(45deg, #ffeaa7, #fab1a0);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .current-target {
+            background: linear-gradient(45deg, #a8edea, #fed6e3);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2d3748;
+            border: 3px solid #4299e1;
+        }
+
+        .level-info {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .level-progress {
+            background: rgba(255,255,255,0.3);
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: #48bb78;
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(45deg, #a8edea, #fed6e3);
+            border-radius: 15px;
+        }
+
+        .score {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .reset-btn {
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+            color: #2d3748;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .matching-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .match-item {
+            background: linear-gradient(45deg, #ffecd2, #fcb69f);
+            border: 3px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2d3748;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .match-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .match-item.selected {
+            background: linear-gradient(45deg, #a8edea, #fed6e3);
+            border-color: #4299e1;
+            transform: scale(1.1);
+        }
+
+        .match-item.correct {
+            background: linear-gradient(45deg, #84fab0, #8fd3f4);
+            border-color: #48bb78;
+            animation: bounce 0.6s ease;
+        }
+
+        .match-item.wrong {
+            background: linear-gradient(45deg, #ffeaa7, #fab1a0);
+            border-color: #e53e3e;
+            animation: shake 0.6s ease;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 60%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            80% { transform: translateY(-5px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .developer-info {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .developer-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .developer-info h3 {
+            color: #2d3748;
+            margin: 0 0 10px 0;
+            font-size: 1.5rem;
+        }
+
+        .developer-info p {
+            color: #718096;
+            margin: 5px 0;
+            font-size: 1rem;
+        }
+
+        .congratulations {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(45deg, #84fab0, #8fd3f4);
+            border-radius: 15px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .congratulations.show {
+            display: block;
+            animation: bounce 0.6s ease;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .matching-grid {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                gap: 10px;
+            }
+            
+            .match-item {
+                padding: 15px;
+                font-size: 1.2rem;
+                min-height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 Game Edukatif</h1>
+            <p>Belajar sambil bermain untuk anak-anak</p>
+        </div>
+
+        <div class="game-selector">
+            <button class="game-btn active" onclick="switchGame('numbers')">🔢 Angka</button>
+            <button class="game-btn" onclick="switchGame('images')">🖼️ Gambar</button>
+            <button class="game-btn" onclick="switchGame('words')">📝 Kata-kata</button>
+        </div>
+
+        <div class="game-area">
+            <div class="level-info">
+                <div>🏆 Level <span id="current-level">1</span> - <span id="level-name">Pemula</span></div>
+                <div style="font-size: 0.9rem; margin-top: 5px;">
+                    Progress: <span id="level-progress">0</span>/10
+                </div>
+                <div class="level-progress">
+                    <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="score-board">
+                <div class="score">Skor: <span id="score">0</span></div>
+                <div class="score">Benar: <span id="correct">0</span> | Salah: <span id="wrong">0</span></div>
+                <button class="reset-btn" onclick="resetGame()">🔄 Reset</button>
+            </div>
+
+            <div id="game-content">
+                <div class="instruction" id="instruction">
+                    Cari pasangan yang tepat!
+                </div>
+                
+                <div class="current-target" id="current-target">
+                    Klik item untuk memulai!
+                </div>
+                
+                <div class="matching-grid" id="matching-grid">
+                    <!-- Game items akan diisi oleh JavaScript -->
+                </div>
+            </div>
+
+            <div class="congratulations" id="congratulations">
+                <h2>🏆 Luar Biasa! Kamu telah menyelesaikan semua level!</h2>
+                <p>Skor akhir: <span id="final-score">0</span></p>
+                <p>Level tertinggi: <span id="final-level">5</span> - Master</p>
+                <p>🌟 Kamu adalah juara sejati!</p>
+            </div>
+        </div>
+
+        <div class="developer-info">
+            <div class="developer-photo">👨‍🏫</div>
+            <h3>Dikembangkan oleh:</h3>
+            <p><strong>Pak Riko Guru PJOK & Koding</strong></p>
+            <p>Pendidikan Kepelatihan Olahraga</p>
+            <p>📧 Email: rikotrisusilo13@guru.sd.belajar.id</p>
+            <p>🏫 Sekolah: SDN 008 Samarinda Ulu</p>
+            <p>💡 "Belajar coding sambil tetap aktif bergerak!"</p>
+        </div>
+    </div>
+
+    <script>
+        let currentGame = 'numbers';
+        let gameData = [];
+        let score = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let currentTarget = null;
+        let currentLevel = 1;
+        let levelProgress = 0;
+        let questionsPerLevel = 10;
+
+        const levelNames = {
+            1: 'Pemula', 2: 'Mudah', 3: 'Menengah', 4: 'Mahir', 5: 'Ahli'
+        };
+
+        const gameTypes = {
+            numbers: {
+                title: 'Mencocokkan Angka',
+                instruction: 'Cari angka yang sesuai dengan kata!',
+                levels: {
+                    1: [['1', 'Satu'], ['2', 'Dua'], ['3', 'Tiga'], ['4', 'Empat']],
+                    2: [['5', 'Lima'], ['6', 'Enam'], ['7', 'Tujuh'], ['8', 'Delapan'], ['9', 'Sembilan'], ['10', 'Sepuluh']],
+                    3: [['11', 'Sebelas'], ['12', 'Dua Belas'], ['15', 'Lima Belas'], ['20', 'Dua Puluh'], ['25', 'Dua Puluh Lima'], ['30', 'Tiga Puluh']],
+                    4: [['50', 'Lima Puluh'], ['75', 'Tujuh Puluh Lima'], ['100', 'Seratus'], ['150', 'Seratus Lima Puluh'], ['200', 'Dua Ratus'], ['500', 'Lima Ratus']],
+                    5: [['1000', 'Seribu'], ['2500', 'Dua Ribu Lima Ratus'], ['5000', 'Lima Ribu'], ['10000', 'Sepuluh Ribu'], ['50000', 'Lima Puluh Ribu'], ['100000', 'Seratus Ribu']]
+                }
+            },
+            images: {
+                title: 'Mencocokkan Gambar',
+                instruction: 'Cari gambar yang sesuai dengan nama!',
+                levels: {
+                    1: [['🐱', 'Kucing'], ['🐶', 'Anjing'], ['🐸', 'Katak'], ['🐦', 'Burung']],
+                    2: [['🌸', 'Bunga'], ['🌳', 'Pohon'], ['☀️', 'Matahari'], ['🌙', 'Bulan'], ['⭐', 'Bintang'], ['🌈', 'Pelangi']],
+                    3: [['🍎', 'Apel'], ['🍌', 'Pisang'], ['🍇', 'Anggur'], ['🍊', 'Jeruk'], ['🍓', 'Stroberi'], ['🥝', 'Kiwi']],
+                    4: [['🚗', 'Mobil'], ['🚲', 'Sepeda'], ['✈️', 'Pesawat'], ['🚢', 'Kapal'], ['🚂', 'Kereta'], ['🚁', 'Helikopter']],
+                    5: [['🏠', 'Rumah'], ['🏫', 'Sekolah'], ['🏥', 'Rumah Sakit'], ['🏪', 'Toko'], ['🏭', 'Pabrik'], ['🏰', 'Istana']]
+                }
+            },
+            words: {
+                title: 'Mencocokkan Kata',
+                instruction: 'Cari terjemahan bahasa Inggris yang tepat!',
+                levels: {
+                    1: [['Merah', 'Red'], ['Biru', 'Blue'], ['Hijau', 'Green'], ['Kuning', 'Yellow']],
+                    2: [['Hitam', 'Black'], ['Putih', 'White'], ['Ungu', 'Purple'], ['Oranye', 'Orange'], ['Coklat', 'Brown'], ['Abu-abu', 'Gray']],
+                    3: [['Besar', 'Big'], ['Kecil', 'Small'], ['Tinggi', 'Tall'], ['Pendek', 'Short'], ['Panjang', 'Long'], ['Lebar', 'Wide']],
+                    4: [['Cepat', 'Fast'], ['Lambat', 'Slow'], ['Kuat', 'Strong'], ['Lemah', 'Weak'], ['Pintar', 'Smart'], ['Bodoh', 'Stupid']],
+                    5: [['Bahagia', 'Happy'], ['Sedih', 'Sad'], ['Marah', 'Angry'], ['Takut', 'Afraid'], ['Senang', 'Glad'], ['Kecewa', 'Disappointed']]
+                }
+            }
+        };
+
+        function switchGame(gameType) {
+            currentGame = gameType;
+            
+            // Update button states
+            document.querySelectorAll('.game-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            resetGame();
+        }
+
+        function resetGame() {
+            score = 0;
+            correctCount = 0;
+            wrongCount = 0;
+            currentTarget = null;
+            currentLevel = 1;
+            levelProgress = 0;
+            
+            updateScore();
+            updateLevelDisplay();
+            document.getElementById('congratulations').classList.remove('show');
+            
+            // Update instruksi sesuai game
+            document.getElementById('instruction').textContent = gameTypes[currentGame].instruction;
+            
+            generateGameData();
+            renderGame();
+            setNewTarget();
+        }
+
+        function generateGameData() {
+            const levelPairs = gameTypes[currentGame].levels[currentLevel] || gameTypes[currentGame].levels[1];
+            
+            // Pilih satu pasangan sebagai target
+            const randomPairIndex = Math.floor(Math.random() * levelPairs.length);
+            const targetPair = levelPairs[randomPairIndex];
+            
+            // Buat pilihan jawaban (hanya menampilkan pilihan pertama dari setiap pasangan)
+            gameData = [];
+            const itemCount = Math.min(4 + currentLevel, levelPairs.length);
+            const selectedPairs = levelPairs.slice(0, itemCount);
+            
+            selectedPairs.forEach((pair, index) => {
+                gameData.push({
+                    id: index,
+                    content: pair[0], // Hanya tampilkan pilihan pertama
+                    pairId: index,
+                    pairContent: [pair[0], pair[1]],
+                    isCorrect: pair[0] === targetPair[0] && pair[1] === targetPair[1],
+                    matched: false
+                });
+            });
+            
+            // Set target (tampilkan pilihan kedua dari pasangan target)
+            currentTarget = {
+                question: targetPair[1], // Yang dicari
+                correctAnswer: targetPair[0] // Jawaban yang benar
+            };
+            
+            // Acak posisi pilihan
+            gameData = gameData.sort(() => Math.random() - 0.5);
+        }
+
+        function updateLevelDisplay() {
+            document.getElementById('current-level').textContent = currentLevel;
+            document.getElementById('level-name').textContent = levelNames[currentLevel] || 'Master';
+            document.getElementById('level-progress').textContent = levelProgress;
+            
+            const progressPercent = (levelProgress / questionsPerLevel) * 100;
+            document.getElementById('progress-bar').style.width = progressPercent + '%';
+        }
+
+        function checkLevelUp() {
+            if (currentLevel < 5) {
+                currentLevel++;
+                levelProgress = 0;
+                updateLevelDisplay();
+                
+                // Tampilkan notifikasi level up
+                setTimeout(() => {
+                    alert(`🎉 Selamat! Naik ke Level ${currentLevel} - ${levelNames[currentLevel]}!`);
+                    generateGameData();
+                    renderGame();
+                    setNewTarget();
+                }, 500);
+            } else {
+                // Level maksimum tercapai
+                setTimeout(() => {
+                    alert('🏆 Luar biasa! Kamu telah menyelesaikan semua level!');
+                    showCongratulations();
+                }, 500);
+            }
+        }
+
+        function setNewTarget() {
+            // Tampilkan pertanyaan
+            document.getElementById('current-target').innerHTML = `
+                🎯 Cari: <strong>${currentTarget.question}</strong>
+            `;
+        }
+
+        function renderGame() {
+            const grid = document.getElementById('matching-grid');
+            grid.innerHTML = '';
+            
+            gameData.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'match-item';
+                div.textContent = item.content;
+                div.onclick = () => selectItem(item.id);
+                
+                if (item.matched) {
+                    div.classList.add('correct');
+                    div.onclick = null;
+                }
+                
+                grid.appendChild(div);
+            });
+        }
+
+        function selectItem(itemId) {
+            const item = gameData.find(i => i.id === itemId);
+            if (item.matched) return;
+            
+            // Cek apakah item yang dipilih adalah jawaban yang benar
+            if (item.isCorrect) {
+                // Benar!
+                item.matched = true;
+                updateItemDisplay(itemId, 'correct');
+                
+                // Skor berdasarkan level (semakin tinggi level, semakin besar skor)
+                const levelBonus = currentLevel * 5;
+                score += 15 + levelBonus;
+                correctCount++;
+                levelProgress++;
+                
+                updateScore();
+                updateLevelDisplay();
+                
+                // Generate soal baru setelah delay
+                setTimeout(() => {
+                    if (levelProgress >= questionsPerLevel) {
+                        checkLevelUp();
+                    } else {
+                        generateGameData();
+                        renderGame();
+                        setNewTarget();
+                    }
+                }, 1000);
+                
+            } else {
+                // Salah!
+                updateItemDisplay(itemId, 'wrong');
+                score = Math.max(0, score - 3);
+                wrongCount++;
+                updateScore();
+                
+                setTimeout(() => {
+                    clearItemSelection(itemId);
+                }, 1000);
+            }
+        }
+
+        function updateItemDisplay(itemId, className) {
+            const items = document.querySelectorAll('.match-item');
+            const itemIndex = gameData.findIndex(i => i.id === itemId);
+            items[itemIndex].classList.add(className);
+        }
+
+
+
+        function clearItemSelection(itemId) {
+            const items = document.querySelectorAll('.match-item');
+            const itemIndex = gameData.findIndex(i => i.id === itemId);
+            items[itemIndex].classList.remove('selected', 'wrong');
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('correct').textContent = correctCount;
+            document.getElementById('wrong').textContent = wrongCount;
+        }
+
+        function showCongratulations() {
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('final-level').textContent = currentLevel;
+            document.getElementById('congratulations').classList.add('show');
+        }
+
+        // Inisialisasi game
+        resetGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9882475105ff6034',t:'MTc1OTM4Nzk2My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
